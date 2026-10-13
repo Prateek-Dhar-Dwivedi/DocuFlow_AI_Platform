@@ -4,7 +4,7 @@ import { SearchResultItem } from "../types";
 
 let openaiClient: OpenAI | AzureOpenAI | null = null;
 
-function getClient(): OpenAI | AzureOpenAI | null {
+function getOpenAIClient(): OpenAI | AzureOpenAI | null {
   if (openaiClient) return openaiClient;
 
   if (CONFIG.AZURE_OPENAI_ENDPOINT && CONFIG.AZURE_OPENAI_KEY) {
@@ -50,49 +50,76 @@ ${contextText || "No relevant documents found in the vector index."}
 =========================`;
 }
 
-export async function createChatStream(
+/**
+ * Streams chat responses from Google Gemini API via Server-Sent Events (SSE)
+ */
+async function createGeminiChatStream(
   messages: { role: "system" | "user" | "assistant"; content: string }[]
 ): Promise<ReadableStream<Uint8Array>> {
-  const client = getClient();
   const encoder = new TextEncoder();
+  const model = CONFIG.GEMINI_CHAT_MODEL || "gemini-3.1-flash-lite";
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:streamGenerateContent?alt=sse&key=${CONFIG.GEMINI_API_KEY}`;
 
-  if (!client) {
-    // Graceful offline mock stream for testing UI when API keys are not yet configured
-    return new ReadableStream({
-      async start(controller) {
-        const mockResponse =
-          "*(Mock Demo Mode: No OpenAI API key configured yet)*\n\n" +
-          "I have received your query and retrieved relevant document chunks! " +
-          "To enable live AI generation, configure your `OPENAI_API_KEY` or `AZURE_OPENAI_KEY` in `.env.local`.\n\n" +
-          "Your ingested context was successfully retrieved and is displayed in the citations panel below.";
+  const systemMessage = messages.find((m) => m.role === "system");
+  const contents = messages
+    .filter((m) => m.role !== "system")
+    .map((m) => ({
+      role: m.role === "assistant" ? "model" : "user",
+      parts: [{ text: m.content }],
+    }));
 
-        const words = mockResponse.split(" ");
-        for (const word of words) {
-          controller.enqueue(encoder.encode(`data: ${JSON.stringify({ text: word + " " })}\n\n`));
-          await new Promise((res) => setTimeout(res, 25));
-        }
-        controller.enqueue(encoder.encode("data: [DONE]\n\n"));
-        controller.close();
-      },
-    });
+  const payload: Record<string, unknown> = {
+    contents,
+    generationConfig: {
+      temperature: 0.2,
+    },
+  };
+
+  if (systemMessage) {
+    payload.systemInstruction = {
+      parts: [{ text: systemMessage.content }],
+    };
   }
 
-  const model = CONFIG.AZURE_OPENAI_DEPLOYMENT_NAME || CONFIG.OPENAI_CHAT_MODEL;
-
-  const stream = await client.chat.completions.create({
-    model,
-    messages,
-    stream: true,
-    temperature: 0.2, // Low temperature for high factual grounding
+  const response = await fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
   });
+
+  if (!response.ok || !response.body) {
+    const errorText = await response.text();
+    throw new Error(`Gemini stream failed (${response.status}): ${errorText}`);
+  }
+
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder("utf-8");
 
   return new ReadableStream({
     async start(controller) {
+      let buffer = "";
       try {
-        for await (const chunk of stream) {
-          const content = chunk.choices[0]?.delta?.content || "";
-          if (content) {
-            controller.enqueue(encoder.encode(`data: ${JSON.stringify({ text: content })}\n\n`));
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split("\n\n");
+          buffer = lines.pop() || "";
+
+          for (const line of lines) {
+            const trimmed = line.trim();
+            if (!trimmed.startsWith("data: ")) continue;
+            const jsonStr = trimmed.replace("data: ", "");
+            try {
+              const data = JSON.parse(jsonStr);
+              const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+              if (text) {
+                controller.enqueue(encoder.encode(`data: ${JSON.stringify({ text })}\n\n`));
+              }
+            } catch {
+              // Ignore partial JSON
+            }
           }
         }
         controller.enqueue(encoder.encode("data: [DONE]\n\n"));
@@ -100,6 +127,72 @@ export async function createChatStream(
       } catch (err) {
         controller.error(err);
       }
+    },
+  });
+}
+
+export async function createChatStream(
+  messages: { role: "system" | "user" | "assistant"; content: string }[]
+): Promise<ReadableStream<Uint8Array>> {
+  // 1. Try Google Gemini first if configured
+  if (CONFIG.GEMINI_API_KEY) {
+    try {
+      return await createGeminiChatStream(messages);
+    } catch (err) {
+      console.warn("[LLM] Gemini stream error, checking fallback:", err);
+    }
+  }
+
+  // 2. Try OpenAI / Azure OpenAI if configured
+  const openAiClient = getOpenAIClient();
+  const encoder = new TextEncoder();
+
+  if (openAiClient) {
+    try {
+      const model = CONFIG.AZURE_OPENAI_DEPLOYMENT_NAME || CONFIG.OPENAI_CHAT_MODEL;
+      const stream = await openAiClient.chat.completions.create({
+        model,
+        messages,
+        stream: true,
+        temperature: 0.2,
+      });
+
+      return new ReadableStream({
+        async start(controller) {
+          try {
+            for await (const chunk of stream) {
+              const content = chunk.choices[0]?.delta?.content || "";
+              if (content) {
+                controller.enqueue(encoder.encode(`data: ${JSON.stringify({ text: content })}\n\n`));
+              }
+            }
+            controller.enqueue(encoder.encode("data: [DONE]\n\n"));
+            controller.close();
+          } catch (err) {
+            controller.error(err);
+          }
+        },
+      });
+    } catch (error) {
+      console.warn("[LLM] OpenAI stream error:", error);
+    }
+  }
+
+  // 3. Fallback mock stream for offline testing
+  return new ReadableStream({
+    async start(controller) {
+      const mockResponse =
+        "*(Mock Demo Mode)*\n\n" +
+        "I have received your query and retrieved relevant document chunks! " +
+        "Configure your `GEMINI_API_KEY` or `OPENAI_API_KEY` in `.env.local` to enable live streaming generation.";
+
+      const words = mockResponse.split(" ");
+      for (const word of words) {
+        controller.enqueue(encoder.encode(`data: ${JSON.stringify({ text: word + " " })}\n\n`));
+        await new Promise((res) => setTimeout(res, 25));
+      }
+      controller.enqueue(encoder.encode("data: [DONE]\n\n"));
+      controller.close();
     },
   });
 }

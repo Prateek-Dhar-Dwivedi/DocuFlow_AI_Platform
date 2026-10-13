@@ -3,7 +3,7 @@ import { CONFIG } from "../config";
 
 let openaiClient: OpenAI | AzureOpenAI | null = null;
 
-function getClient(): OpenAI | AzureOpenAI | null {
+function getOpenAIClient(): OpenAI | AzureOpenAI | null {
   if (openaiClient) return openaiClient;
 
   // 1. Azure OpenAI Configuration
@@ -29,8 +29,36 @@ function getClient(): OpenAI | AzureOpenAI | null {
 }
 
 /**
+ * Generate 1536-dimensional embeddings using Google Gemini API
+ */
+async function generateGeminiEmbedding(text: string): Promise<number[]> {
+  const model = CONFIG.GEMINI_EMBEDDING_MODEL || "gemini-embedding-001";
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:embedContent?key=${CONFIG.GEMINI_API_KEY}`;
+
+  const res = await fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      content: { parts: [{ text }] },
+      outputDimensionality: 1536,
+    }),
+  });
+
+  if (!res.ok) {
+    const errorText = await res.text();
+    throw new Error(`Gemini embedding failed (${res.status}): ${errorText}`);
+  }
+
+  const data = await res.json();
+  const vector = data.embedding?.values;
+  if (!vector || !Array.isArray(vector)) {
+    throw new Error("Invalid embedding response from Gemini");
+  }
+  return vector;
+}
+
+/**
  * Generates a mock deterministic 1536-dim normalized vector when API keys are not yet configured.
- * This ensures the application can run in local preview mode without crashing.
  */
 function generateDeterministicMockVector(text: string, dimensions = 1536): number[] {
   let hash = 0;
@@ -47,7 +75,6 @@ function generateDeterministicMockVector(text: string, dimensions = 1536): numbe
     sumSq += val * val;
   }
 
-  // L2 normalize
   const norm = Math.sqrt(sumSq) || 1;
   for (let i = 0; i < dimensions; i++) {
     vector[i] = vector[i] / norm;
@@ -56,27 +83,33 @@ function generateDeterministicMockVector(text: string, dimensions = 1536): numbe
 }
 
 export async function generateEmbeddings(texts: string[]): Promise<number[][]> {
-  const client = getClient();
-
-  if (!client) {
-    console.warn(
-      "[Embeddings] No OpenAI or Azure OpenAI API key provided. Using deterministic mock vectors for local testing."
-    );
-    return texts.map((t) => generateDeterministicMockVector(t));
+  // 1. Try Google Gemini first if configured
+  if (CONFIG.GEMINI_API_KEY) {
+    try {
+      return await Promise.all(texts.map((t) => generateGeminiEmbedding(t)));
+    } catch (err) {
+      console.warn("[Embeddings] Gemini generation error, falling back to OpenAI or local mock:", err);
+    }
   }
 
-  try {
-    const model = CONFIG.AZURE_OPENAI_EMBEDDINGS_DEPLOYMENT || CONFIG.OPENAI_EMBEDDING_MODEL;
-    const response = await client.embeddings.create({
-      model,
-      input: texts,
-    });
-
-    return response.data.map((item) => item.embedding);
-  } catch (error) {
-    console.error("[Embeddings] Error generating embeddings:", error);
-    throw error;
+  // 2. Try OpenAI / Azure OpenAI if configured
+  const openAiClient = getOpenAIClient();
+  if (openAiClient) {
+    try {
+      const model = CONFIG.AZURE_OPENAI_EMBEDDINGS_DEPLOYMENT || CONFIG.OPENAI_EMBEDDING_MODEL;
+      const response = await openAiClient.embeddings.create({
+        model,
+        input: texts,
+      });
+      return response.data.map((item) => item.embedding);
+    } catch (error) {
+      console.error("[Embeddings] OpenAI error:", error);
+    }
   }
+
+  // 3. Fallback to mock deterministic vector
+  console.warn("[Embeddings] Using deterministic fallback vectors for local testing.");
+  return texts.map((t) => generateDeterministicMockVector(t));
 }
 
 export async function generateSingleEmbedding(text: string): Promise<number[]> {

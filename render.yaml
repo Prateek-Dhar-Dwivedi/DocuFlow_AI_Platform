@@ -16,6 +16,8 @@ services:
         value: https://rag-documents-d4sm4vc.svc.aped-4627-b74a.pinecone.io
       - key: PINECONE_API_KEY
         sync: false
+      - key: GEMINI_API_KEY
+        sync: false
       - key: OPENAI_API_KEY
         sync: false
       - key: UIPATH_API_KEY

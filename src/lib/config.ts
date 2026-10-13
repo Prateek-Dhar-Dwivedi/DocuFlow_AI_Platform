@@ -12,6 +12,11 @@ export const CONFIG = {
   AZURE_SEARCH_KEY: process.env.AZURE_SEARCH_KEY || "",
   AZURE_SEARCH_INDEX_NAME: process.env.AZURE_SEARCH_INDEX_NAME || "documents-rag-index",
 
+  // Google Gemini
+  GEMINI_API_KEY: process.env.GEMINI_API_KEY || "",
+  GEMINI_CHAT_MODEL: process.env.GEMINI_CHAT_MODEL || "gemini-3.1-flash-lite",
+  GEMINI_EMBEDDING_MODEL: process.env.GEMINI_EMBEDDING_MODEL || "gemini-embedding-001",
+
   // OpenAI
   OPENAI_API_KEY: process.env.OPENAI_API_KEY || "",
   OPENAI_CHAT_MODEL: process.env.OPENAI_CHAT_MODEL || "gpt-4o-mini",
@@ -29,12 +34,20 @@ export const CONFIG = {
   CHUNK_OVERLAP: 150,
 };
 
+export function hasGeminiConfigured(): boolean {
+  return Boolean(CONFIG.GEMINI_API_KEY);
+}
+
 export function hasPineconeConfigured(): boolean {
   return Boolean(CONFIG.PINECONE_API_KEY);
 }
 
 export function hasOpenAIConfigured(): boolean {
   return Boolean(CONFIG.OPENAI_API_KEY || (CONFIG.AZURE_OPENAI_ENDPOINT && CONFIG.AZURE_OPENAI_KEY));
+}
+
+export function hasAIConfigured(): boolean {
+  return hasGeminiConfigured() || hasOpenAIConfigured();
 }
 
 export function hasAzureSearchConfigured(): boolean {
