@@ -1,4 +1,4 @@
-import { ChatInterface } from "@/components/chat/ChatInterface";
+import { ChatInterface } from "../../components/chat/ChatInterface";
 
 export const metadata = {
   title: "Conversational Q&A | DocuFlow AI",

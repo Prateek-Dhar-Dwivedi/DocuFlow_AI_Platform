@@ -1,4 +1,4 @@
-import { DocumentDashboard } from "@/components/documents/DocumentDashboard";
+import { DocumentDashboard } from "../../components/documents/DocumentDashboard";
 
 export const metadata = {
   title: "Document Registry | DocuFlow AI",

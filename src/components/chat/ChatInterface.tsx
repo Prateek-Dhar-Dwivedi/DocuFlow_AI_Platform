@@ -14,7 +14,7 @@ import {
   ShieldCheck,
   AlertCircle,
 } from "lucide-react";
-import { ChatMessage, SearchResultItem } from "@/lib/types";
+import { ChatMessage, SearchResultItem } from "../../lib/types";
 
 const SUGGESTED_PROMPTS = [
   "Summarize the main documents extracted by the UiPath bot",

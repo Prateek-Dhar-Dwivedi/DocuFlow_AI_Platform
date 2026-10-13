@@ -1,11 +1,11 @@
 import { NextResponse } from "next/server";
-import { getAllDocuments, getActiveVectorProvider } from "@/lib/vector/index";
+import { getAllDocuments, getActiveVectorProvider } from "../../../lib/vector/index";
 import {
   hasPineconeConfigured,
   hasAzureSearchConfigured,
   hasOpenAIConfigured,
   CONFIG,
-} from "@/lib/config";
+} from "../../../lib/config";
 
 export async function GET() {
   try {

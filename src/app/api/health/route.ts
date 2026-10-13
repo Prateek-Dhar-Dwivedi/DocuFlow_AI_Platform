@@ -4,8 +4,8 @@ import {
   hasAzureSearchConfigured,
   hasOpenAIConfigured,
   CONFIG,
-} from "@/lib/config";
-import { getActiveVectorProvider } from "@/lib/vector/index";
+} from "../../../lib/config";
+import { getActiveVectorProvider } from "../../../lib/vector/index";
 
 export async function GET() {
   return NextResponse.json({

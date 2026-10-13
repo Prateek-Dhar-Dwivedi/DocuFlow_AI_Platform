@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import { validateApiKey } from "@/lib/auth/api-key";
-import { extractTextFromFile } from "@/lib/processing/extractor";
-import { chunkText } from "@/lib/processing/chunker";
-import { generateEmbeddings } from "@/lib/ai/embeddings";
-import { storeChunks } from "@/lib/vector/index";
-import { IngestResponse } from "@/lib/types";
+import { validateApiKey } from "../../../lib/auth/api-key";
+import { extractTextFromFile } from "../../../lib/processing/extractor";
+import { chunkText } from "../../../lib/processing/chunker";
+import { generateEmbeddings } from "../../../lib/ai/embeddings";
+import { storeChunks } from "../../../lib/vector/index";
+import { IngestResponse } from "../../../lib/types";
 
 export const maxDuration = 60; // Allow sufficient time for large documents
 

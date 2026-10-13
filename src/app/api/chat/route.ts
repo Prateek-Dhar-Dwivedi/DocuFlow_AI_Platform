@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { generateSingleEmbedding } from "@/lib/ai/embeddings";
-import { queryVectorStore } from "@/lib/vector/index";
-import { buildSystemPrompt, createChatStream } from "@/lib/ai/llm";
-import { SearchResultItem } from "@/lib/types";
+import { generateSingleEmbedding } from "../../../lib/ai/embeddings";
+import { queryVectorStore } from "../../../lib/vector/index";
+import { buildSystemPrompt, createChatStream } from "../../../lib/ai/llm";
+import { SearchResultItem } from "../../../lib/types";
 
 export const maxDuration = 60;
 

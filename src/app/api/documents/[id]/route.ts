@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { removeDocument } from "@/lib/vector/index";
+import { removeDocument } from "../../../../lib/vector/index";
 
 export async function DELETE(
   _request: NextRequest,

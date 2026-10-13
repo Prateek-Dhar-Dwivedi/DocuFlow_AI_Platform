@@ -16,7 +16,7 @@ import {
   AlertCircle,
   ExternalLink,
 } from "lucide-react";
-import { DocumentRecord } from "@/lib/types";
+import { DocumentRecord } from "../../lib/types";
 
 export function DocumentDashboard() {
   const [documents, setDocuments] = useState<DocumentRecord[]>([]);
