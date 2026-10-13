@@ -98,7 +98,7 @@ export function DocumentDashboard() {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: "Bearer dev-uipath-secret-key-12345",
+            Authorization: "Bearer dev-uipath-mkp-is-the-best-981060",
           },
           body: JSON.stringify({
             title: docTitle,
@@ -120,7 +120,7 @@ export function DocumentDashboard() {
         res = await fetch("/api/ingest", {
           method: "POST",
           headers: {
-            Authorization: "Bearer dev-uipath-secret-key-12345",
+            Authorization: "Bearer dev-uipath-mkp-is-the-best-981060",
           },
           body: formData,
         });
@@ -152,7 +152,7 @@ export function DocumentDashboard() {
 
   const curlCommand = `curl -X POST http://localhost:3000/api/ingest \\
   -H "Content-Type: application/json" \\
-  -H "Authorization: Bearer dev-uipath-secret-key-12345" \\
+  -H "Authorization: Bearer dev-uipath-mkp-is-the-best-981060" \\
   -d '{
     "title": "Invoice_Q3_AcmeCorp.pdf",
     "source": "UiPath Bot - Finance Inbox",

@@ -93,7 +93,7 @@ Configure `.env.local` with your credentials:
 * **What it does**: Secures your `/api/ingest` webhook so only authorized UiPath robots can send documents.
 * **Set in `.env.local`**:
   ```env
-  UIPATH_API_KEY=dev-uipath-secret-key-12345
+  UIPATH_API_KEY=dev-uipath-mkp-is-the-best-981060
   ```
 
 ---
@@ -108,7 +108,7 @@ Configure UiPath's **HTTP Request** activity:
 - **Method**: `POST`
 - **Headers**:
   - `Content-Type`: `application/json`
-  - `Authorization`: `Bearer dev-uipath-secret-key-12345`
+  - `Authorization`: `Bearer dev-uipath-mkp-is-the-best-981060`
 - **Body / Payload**:
   ```json
   {
@@ -127,7 +127,7 @@ Configure UiPath's **HTTP Request** activity:
 ```bash
 curl -X POST http://localhost:3000/api/ingest \
   -H "Content-Type: application/json" \
-  -H "Authorization: Bearer dev-uipath-secret-key-12345" \
+  -H "Authorization: Bearer dev-uipath-mkp-is-the-best-981060" \
   -d '{
     "title": "Sample_HR_Policy.txt",
     "source": "UiPath RPA Bot",

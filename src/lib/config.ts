@@ -1,6 +1,6 @@
 export const CONFIG = {
   // UiPath Security
-  UIPATH_API_KEY: process.env.UIPATH_API_KEY || "dev-uipath-secret-key-12345",
+  UIPATH_API_KEY: process.env.UIPATH_API_KEY || "dev-uipath-mkp-is-the-best-981060",
 
   // Pinecone Vector Database
   PINECONE_API_KEY: process.env.PINECONE_API_KEY || "",
