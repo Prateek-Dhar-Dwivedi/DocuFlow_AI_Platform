@@ -13,6 +13,7 @@ import {
   ExternalLink,
   ShieldCheck,
   AlertCircle,
+  Database,
 } from "lucide-react";
 import { ChatMessage, SearchResultItem } from "../../lib/types";
 
@@ -171,17 +172,17 @@ export function ChatInterface() {
   return (
     <div className="flex flex-1 flex-col h-[calc(100vh-65px)] max-w-5xl mx-auto w-full px-4 sm:px-6 py-4">
       {/* Top action bar */}
-      <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+      <div className="flex items-center justify-between pb-3 border-b border-[#E2E8F0]">
         <div className="flex items-center gap-2">
-          <div className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
-          <span className="text-xs font-medium text-slate-400">
-            Vector Store: <strong className="text-slate-200">Pinecone Serverless (rag-documents)</strong>
+          <Database className="h-3.5 w-3.5 text-[#1D4ED8]" />
+          <span className="text-xs font-medium text-slate-500">
+            Vector Store: <strong className="text-[#0F172A] font-semibold">Pinecone Serverless (rag-documents)</strong>
           </span>
         </div>
         {messages.length > 0 && (
           <button
             onClick={handleClear}
-            className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-slate-200 px-2 py-1 rounded hover:bg-slate-800 transition-colors"
+            className="flex items-center gap-1.5 text-xs text-slate-600 hover:text-[#0F172A] px-2.5 py-1 rounded-lg border border-[#E2E8F0] bg-white hover:bg-slate-50 transition-colors shadow-sm"
           >
             <RefreshCw className="h-3 w-3" />
             Clear Chat
@@ -193,30 +194,30 @@ export function ChatInterface() {
       <div className="flex-1 overflow-y-auto py-6 space-y-6">
         {messages.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full text-center max-w-lg mx-auto space-y-6">
-            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-indigo-500/10 border border-indigo-500/20 shadow-inner">
-              <Bot className="h-8 w-8 text-indigo-400" />
+            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-blue-50 border border-blue-200 shadow-sm">
+              <Bot className="h-8 w-8 text-[#1D4ED8]" />
             </div>
             <div>
-              <h2 className="text-xl font-bold text-white tracking-tight">Conversational Document Q&A</h2>
-              <p className="mt-2 text-sm text-slate-400">
+              <h2 className="text-xl font-bold text-[#0F172A] tracking-tight">Conversational Document Q&A</h2>
+              <p className="mt-2 text-sm text-slate-600">
                 Ask questions about any documents extracted by your UiPath bots or uploaded manually.
-                Answers are grounded strictly in your Azure vector index.
+                Answers are grounded strictly in your Pinecone vector index.
               </p>
             </div>
 
             {/* Suggested Prompts */}
             <div className="w-full space-y-2 pt-2">
-              <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">
+              <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">
                 Suggested Prompts
               </p>
               {SUGGESTED_PROMPTS.map((prompt, idx) => (
                 <button
                   key={idx}
                   onClick={() => handleSubmit(undefined, prompt)}
-                  className="w-full text-left p-3 rounded-xl border border-slate-800 bg-slate-900/60 hover:bg-slate-800/80 hover:border-indigo-500/30 text-xs sm:text-sm text-slate-300 transition-all flex items-center justify-between group"
+                  className="w-full text-left p-3.5 rounded-xl border border-[#E2E8F0] bg-white hover:border-[#1D4ED8] hover:bg-blue-50/40 text-xs sm:text-sm text-slate-700 transition-all flex items-center justify-between group shadow-sm"
                 >
                   <span>{prompt}</span>
-                  <Sparkles className="h-3.5 w-3.5 text-slate-500 group-hover:text-indigo-400 transition-colors" />
+                  <Sparkles className="h-3.5 w-3.5 text-slate-400 group-hover:text-[#1D4ED8] transition-colors" />
                 </button>
               ))}
             </div>
@@ -233,7 +234,7 @@ export function ChatInterface() {
                 className={`flex gap-3 sm:gap-4 ${isUser ? "justify-end" : "justify-start"}`}
               >
                 {!isUser && (
-                  <div className="flex-shrink-0 flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-600/20 border border-indigo-500/30 text-indigo-400">
+                  <div className="flex-shrink-0 flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50 border border-blue-200 text-[#1D4ED8] shadow-sm">
                     <Bot className="h-4 w-4" />
                   </div>
                 )}
@@ -243,15 +244,15 @@ export function ChatInterface() {
                   <div
                     className={`rounded-2xl p-4 text-sm leading-relaxed ${
                       isUser
-                        ? "bg-indigo-600 text-white rounded-tr-sm shadow-md"
-                        : "bg-slate-900 border border-slate-800 text-slate-200 rounded-tl-sm shadow-sm"
+                        ? "bg-[#1D4ED8] text-white rounded-tr-sm shadow-sm"
+                        : "bg-white border border-[#E2E8F0] text-[#0F172A] rounded-tl-sm shadow-sm"
                     }`}
                   >
                     {message.content ? (
                       <div className="whitespace-pre-wrap font-sans">{message.content}</div>
                     ) : (
-                      <div className="flex items-center gap-2 text-slate-400 text-xs py-1">
-                        <span className="h-2 w-2 rounded-full bg-indigo-400 animate-ping" />
+                      <div className="flex items-center gap-2 text-slate-500 text-xs py-1">
+                        <RefreshCw className="h-3.5 w-3.5 animate-spin text-[#1D4ED8]" />
                         <span>Searching vector index & synthesizing response...</span>
                       </div>
                     )}
@@ -259,13 +260,13 @@ export function ChatInterface() {
 
                   {/* Citations and Grounding Panel */}
                   {!isUser && hasCitations && (
-                    <div className="rounded-xl border border-slate-800/80 bg-slate-900/40 p-3 text-xs">
+                    <div className="rounded-xl border border-[#E2E8F0] bg-slate-50/70 p-3 text-xs">
                       <button
                         onClick={() => toggleCitations(message.id)}
-                        className="flex items-center justify-between w-full text-slate-400 hover:text-slate-200 font-medium transition-colors"
+                        className="flex items-center justify-between w-full text-slate-600 hover:text-[#0F172A] font-medium transition-colors"
                       >
                         <div className="flex items-center gap-2">
-                          <ShieldCheck className="h-3.5 w-3.5 text-emerald-400" />
+                          <ShieldCheck className="h-3.5 w-3.5 text-[#1D4ED8]" />
                           <span>
                             Grounded in {message.citations?.length} retrieved source chunk
                             {message.citations && message.citations.length > 1 ? "s" : ""}
@@ -279,26 +280,26 @@ export function ChatInterface() {
                       </button>
 
                       {isExpanded && (
-                        <div className="mt-3 space-y-2 border-t border-slate-800/60 pt-2">
+                        <div className="mt-3 space-y-2 border-t border-[#E2E8F0] pt-2">
                           {message.citations?.map((chunk, idx) => (
                             <div
                               key={chunk.id || idx}
-                              className="rounded-lg bg-slate-950/80 border border-slate-800 p-2.5 space-y-1"
+                              className="rounded-lg bg-white border border-[#E2E8F0] p-2.5 space-y-1 shadow-sm"
                             >
                               <div className="flex items-center justify-between">
-                                <span className="font-semibold text-indigo-300 flex items-center gap-1.5 truncate max-w-[70%]">
+                                <span className="font-semibold text-[#1D4ED8] flex items-center gap-1.5 truncate max-w-[70%]">
                                   <FileText className="h-3 w-3 flex-shrink-0" />
                                   {chunk.title}
                                 </span>
-                                <span className="rounded bg-indigo-500/10 px-1.5 py-0.5 text-[10px] text-indigo-400 border border-indigo-500/20">
+                                <span className="rounded bg-blue-50 px-1.5 py-0.5 text-[10px] text-[#1D4ED8] border border-blue-200 font-medium">
                                   Score: {(chunk.score * 100).toFixed(0)}%
                                 </span>
                               </div>
-                              <p className="text-slate-400 line-clamp-3 text-[11px] leading-relaxed">
+                              <p className="text-slate-600 line-clamp-3 text-[11px] leading-relaxed">
                                 {chunk.content}
                               </p>
                               {Boolean(chunk.metadata?.source) && (
-                                <p className="text-[10px] text-slate-500 italic">
+                                <p className="text-[10px] text-slate-400 italic">
                                   Source: {String(chunk.metadata?.source)}
                                 </p>
                               )}
@@ -309,13 +310,13 @@ export function ChatInterface() {
                     </div>
                   )}
 
-                  <span className="text-[10px] text-slate-500 self-end px-1">
+                  <span className="text-[10px] text-slate-400 self-end px-1">
                     {message.createdAt}
                   </span>
                 </div>
 
                 {isUser && (
-                  <div className="flex-shrink-0 flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-600 text-white">
+                  <div className="flex-shrink-0 flex h-8 w-8 items-center justify-center rounded-lg bg-[#1D4ED8] text-white shadow-sm">
                     <User className="h-4 w-4" />
                   </div>
                 )}
@@ -328,7 +329,7 @@ export function ChatInterface() {
 
       {/* Input box */}
       <form onSubmit={handleSubmit} className="relative pt-2">
-        <div className="relative flex items-end rounded-2xl border border-slate-800 bg-slate-900/90 shadow-xl focus-within:border-indigo-500/50 focus-within:ring-1 focus-within:ring-indigo-500/30 transition-all">
+        <div className="relative flex items-end rounded-2xl border border-[#E2E8F0] bg-white shadow-sm focus-within:border-[#1D4ED8] focus-within:ring-2 focus-within:ring-blue-100 transition-all">
           <textarea
             ref={inputRef}
             value={input}
@@ -336,13 +337,13 @@ export function ChatInterface() {
             onKeyDown={handleKeyDown}
             placeholder="Ask a question about your indexed documents... (Enter to send, Shift+Enter for newline)"
             rows={2}
-            className="w-full resize-none bg-transparent px-4 py-3.5 text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none"
+            className="w-full resize-none bg-transparent px-4 py-3.5 text-sm text-[#0F172A] placeholder:text-slate-400 focus:outline-none"
             disabled={isLoading}
           />
           <button
             type="submit"
             disabled={!input.trim() || isLoading}
-            className="m-2 flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-600 text-white transition-all hover:bg-indigo-500 disabled:opacity-40 disabled:hover:bg-indigo-600 flex-shrink-0 shadow-md"
+            className="m-2 flex h-9 w-9 items-center justify-center rounded-xl bg-[#1D4ED8] text-white transition-all hover:bg-blue-800 disabled:opacity-40 disabled:hover:bg-[#1D4ED8] flex-shrink-0 shadow-sm"
           >
             {isLoading ? (
               <RefreshCw className="h-4 w-4 animate-spin" />
@@ -351,8 +352,8 @@ export function ChatInterface() {
             )}
           </button>
         </div>
-        <p className="mt-2 text-center text-[11px] text-slate-500">
-          Powered by Azure AI Search & OpenAI • Contextually filtered to prevent hallucinations
+        <p className="mt-2 text-center text-[11px] text-slate-400">
+          Powered by Pinecone Serverless & Google Gemini • Contextually filtered to prevent hallucinations
         </p>
       </form>
     </div>

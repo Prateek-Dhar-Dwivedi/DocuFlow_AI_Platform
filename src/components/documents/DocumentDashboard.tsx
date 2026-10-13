@@ -15,6 +15,7 @@ import {
   CheckCircle2,
   AlertCircle,
   ExternalLink,
+  X,
 } from "lucide-react";
 import { DocumentRecord } from "../../lib/types";
 
@@ -171,23 +172,23 @@ export function DocumentDashboard() {
       {/* Header and Title */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-white">Document Registry & Vector Store</h1>
-          <p className="mt-1 text-sm text-slate-400">
-            Monitor documents ingested by UiPath Studio robots and manage vector embeddings in Azure AI Search.
+          <h1 className="text-2xl font-bold tracking-tight text-[#0F172A]">Document Registry & Vector Store</h1>
+          <p className="mt-1 text-sm text-slate-600">
+            Monitor documents ingested by UiPath Studio robots and manage vector embeddings in Pinecone Serverless.
           </p>
         </div>
         <div className="flex items-center gap-3">
           <button
             onClick={fetchDocuments}
             disabled={isLoading}
-            className="flex items-center gap-2 rounded-xl border border-slate-800 bg-slate-900 px-3.5 py-2 text-xs font-semibold text-slate-300 hover:bg-slate-800 transition-colors"
+            className="flex items-center gap-2 rounded-xl border border-[#E2E8F0] bg-white px-3.5 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition-colors shadow-sm"
           >
             <RefreshCw className={`h-3.5 w-3.5 ${isLoading ? "animate-spin" : ""}`} />
             Refresh
           </button>
           <button
             onClick={() => setShowUploadModal(true)}
-            className="flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2 text-xs font-semibold text-white hover:bg-indigo-500 transition-colors shadow-md shadow-indigo-600/20"
+            className="flex items-center gap-2 rounded-xl bg-[#1D4ED8] px-4 py-2 text-xs font-semibold text-white hover:bg-blue-800 transition-colors shadow-sm"
           >
             <Plus className="h-4 w-4" />
             Ingest Document
@@ -197,36 +198,34 @@ export function DocumentDashboard() {
 
       {/* Metric Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-5 backdrop-blur-sm">
+        <div className="rounded-2xl border border-[#E2E8F0] bg-white p-5 shadow-sm">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-slate-400">Indexed Documents</span>
-            <Files className="h-4 w-4 text-indigo-400" />
+            <span className="text-xs font-medium text-slate-500">Indexed Documents</span>
+            <Files className="h-4 w-4 text-[#1D4ED8]" />
           </div>
-          <p className="mt-2 text-2xl font-bold text-white">{documents.length}</p>
+          <p className="mt-2 text-2xl font-bold text-[#0F172A]">{documents.length}</p>
           <p className="mt-1 text-[11px] text-slate-500">Active records in database</p>
         </div>
 
-        <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-5 backdrop-blur-sm">
+        <div className="rounded-2xl border border-[#E2E8F0] bg-white p-5 shadow-sm">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-slate-400">Total Vector Chunks</span>
-            <Database className="h-4 w-4 text-cyan-400" />
+            <span className="text-xs font-medium text-slate-500">Total Vector Chunks</span>
+            <Database className="h-4 w-4 text-[#1D4ED8]" />
           </div>
-          <p className="mt-2 text-2xl font-bold text-white">
+          <p className="mt-2 text-2xl font-bold text-[#0F172A]">
             {documents.reduce((acc, d) => acc + d.chunkCount, 0)}
           </p>
           <p className="mt-1 text-[11px] text-slate-500">1536-dimensional embeddings</p>
         </div>
 
-        <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-5 backdrop-blur-sm">
+        <div className="rounded-2xl border border-[#E2E8F0] bg-white p-5 shadow-sm">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-slate-400">Pinecone Vector DB</span>
-            <div
-              className={`h-2.5 w-2.5 rounded-full ${
-                status.pineconeConnected ? "bg-emerald-400 animate-pulse" : "bg-amber-400"
-              }`}
-            />
+            <span className="text-xs font-medium text-slate-500">Pinecone Vector DB</span>
+            <span className="rounded-full bg-blue-50 px-2 py-0.5 text-[10px] font-semibold text-[#1D4ED8] border border-blue-200">
+              {status.pineconeConnected ? "Connected" : "Disconnected"}
+            </span>
           </div>
-          <p className="mt-2 text-sm font-semibold text-white">
+          <p className="mt-2 text-sm font-semibold text-[#0F172A]">
             {status.pineconeConnected ? `Connected (${status.pineconeIndex || "rag-documents"})` : "Local Dev Mode"}
           </p>
           <p className="mt-1 text-[11px] text-slate-500">
@@ -234,57 +233,57 @@ export function DocumentDashboard() {
           </p>
         </div>
 
-        <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-5 backdrop-blur-sm">
+        <div className="rounded-2xl border border-[#E2E8F0] bg-white p-5 shadow-sm">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-slate-400">UiPath Webhook</span>
-            <Bot className="h-4 w-4 text-emerald-400" />
+            <span className="text-xs font-medium text-slate-500">UiPath Webhook</span>
+            <Bot className="h-4 w-4 text-[#1D4ED8]" />
           </div>
-          <p className="mt-2 text-sm font-semibold text-white">/api/ingest</p>
-          <p className="mt-1 text-[11px] text-emerald-400">Accepting POST payloads</p>
+          <p className="mt-2 text-sm font-semibold text-[#0F172A]">/api/ingest</p>
+          <p className="mt-1 text-[11px] text-[#1D4ED8] font-medium">Accepting POST payloads</p>
         </div>
       </div>
 
       {/* UiPath Bot Quick Integration Banner */}
-      <div className="rounded-2xl border border-indigo-500/20 bg-indigo-950/20 p-5">
+      <div className="rounded-2xl border border-blue-200 bg-blue-50/70 p-5 shadow-sm">
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
           <div className="space-y-1">
             <div className="flex items-center gap-2">
-              <Bot className="h-4 w-4 text-indigo-400" />
-              <h3 className="text-sm font-semibold text-white">UiPath Studio Bot Webhook Setup</h3>
+              <Bot className="h-4 w-4 text-[#1D4ED8]" />
+              <h3 className="text-sm font-semibold text-[#0F172A]">UiPath Studio Bot Webhook Setup</h3>
             </div>
-            <p className="text-xs text-slate-400 max-w-2xl">
+            <p className="text-xs text-slate-600 max-w-2xl">
               Configure your UiPath Studio <strong>HTTP Request</strong> activity to dispatch extracted text directly to this endpoint. Low latency JSON payload is ready.
             </p>
           </div>
           <button
             onClick={copyCurl}
-            className="flex items-center gap-2 self-start lg:self-auto rounded-xl border border-slate-700 bg-slate-800 px-3 py-1.5 text-xs text-slate-200 hover:bg-slate-700 transition-colors"
+            className="flex items-center gap-2 self-start lg:self-auto rounded-xl border border-[#E2E8F0] bg-white px-3 py-1.5 text-xs text-slate-700 hover:bg-slate-50 transition-colors shadow-sm"
           >
-            {copiedCurl ? <Check className="h-3.5 w-3.5 text-emerald-400" /> : <Copy className="h-3.5 w-3.5 text-slate-400" />}
+            {copiedCurl ? <Check className="h-3.5 w-3.5 text-emerald-600" /> : <Copy className="h-3.5 w-3.5 text-slate-500" />}
             {copiedCurl ? "Copied cURL!" : "Copy UiPath cURL Test"}
           </button>
         </div>
       </div>
 
       {/* Documents Table */}
-      <div className="rounded-2xl border border-slate-800 bg-slate-900/50 overflow-hidden shadow-sm">
-        <div className="px-6 py-4 border-b border-slate-800 flex items-center justify-between">
-          <h2 className="text-sm font-semibold text-white">Indexed Documents ({documents.length})</h2>
+      <div className="rounded-2xl border border-[#E2E8F0] bg-white overflow-hidden shadow-sm">
+        <div className="px-6 py-4 border-b border-[#E2E8F0] flex items-center justify-between">
+          <h2 className="text-sm font-semibold text-[#0F172A]">Indexed Documents ({documents.length})</h2>
           <span className="text-xs text-slate-500">Live Vector Index</span>
         </div>
 
         {documents.length === 0 ? (
           <div className="py-16 text-center space-y-3">
-            <FileText className="h-10 w-10 text-slate-600 mx-auto" />
-            <p className="text-sm text-slate-400">No documents ingested yet.</p>
-            <p className="text-xs text-slate-500 max-w-md mx-auto">
+            <FileText className="h-10 w-10 text-slate-300 mx-auto" />
+            <p className="text-sm text-slate-600">No documents ingested yet.</p>
+            <p className="text-xs text-slate-400 max-w-md mx-auto">
               Run your UiPath robot or click &ldquo;Ingest Document&rdquo; above to parse and vector-index your first document.
             </p>
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
-              <thead className="border-b border-slate-800 bg-slate-950/40 text-slate-400 uppercase tracking-wider">
+              <thead className="border-b border-[#E2E8F0] bg-slate-50 text-slate-500 uppercase tracking-wider text-[11px]">
                 <tr>
                   <th className="px-6 py-3 font-medium">Document Title</th>
                   <th className="px-6 py-3 font-medium">Source / Bot</th>
@@ -294,29 +293,29 @@ export function DocumentDashboard() {
                   <th className="px-6 py-3 font-medium text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-800/60 text-slate-300">
+              <tbody className="divide-y divide-[#E2E8F0] text-slate-700">
                 {documents.map((doc) => (
-                  <tr key={doc.id} className="hover:bg-slate-800/30 transition-colors">
-                    <td className="px-6 py-4 font-medium text-white flex items-center gap-2">
-                      <FileText className="h-4 w-4 text-indigo-400 flex-shrink-0" />
+                  <tr key={doc.id} className="hover:bg-slate-50/80 transition-colors">
+                    <td className="px-6 py-4 font-medium text-[#0F172A] flex items-center gap-2">
+                      <FileText className="h-4 w-4 text-[#1D4ED8] flex-shrink-0" />
                       <span className="truncate max-w-xs">{doc.title}</span>
                     </td>
-                    <td className="px-6 py-4 text-slate-400">
-                      <span className="rounded-md bg-slate-800 px-2 py-1 text-[11px] text-slate-300 border border-slate-700/50">
+                    <td className="px-6 py-4 text-slate-500">
+                      <span className="rounded-md bg-slate-100 px-2 py-1 text-[11px] text-slate-700 border border-[#E2E8F0]">
                         {doc.source}
                       </span>
                     </td>
                     <td className="px-6 py-4">
-                      <span className="font-semibold text-indigo-300">{doc.chunkCount}</span> chunks
+                      <span className="font-semibold text-[#1D4ED8]">{doc.chunkCount}</span> chunks
                     </td>
-                    <td className="px-6 py-4 text-slate-400">{doc.totalCharacters.toLocaleString()}</td>
-                    <td className="px-6 py-4 text-slate-400">
+                    <td className="px-6 py-4 text-slate-600">{doc.totalCharacters.toLocaleString()}</td>
+                    <td className="px-6 py-4 text-slate-500">
                       {new Date(doc.createdAt).toLocaleDateString()}
                     </td>
                     <td className="px-6 py-4 text-right">
                       <button
                         onClick={() => handleDelete(doc.id)}
-                        className="text-slate-500 hover:text-red-400 p-1 rounded transition-colors"
+                        className="text-slate-400 hover:text-red-600 p-1 rounded transition-colors"
                         title="Delete Document & Chunks"
                       >
                         <Trash2 className="h-4 w-4" />
@@ -332,25 +331,25 @@ export function DocumentDashboard() {
 
       {/* Manual Ingest Modal */}
       {showUploadModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
-          <div className="w-full max-w-lg rounded-2xl border border-slate-800 bg-slate-900 p-6 shadow-2xl space-y-4">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-              <h3 className="text-base font-semibold text-white">Manual Document Ingestion</h3>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4">
+          <div className="w-full max-w-lg rounded-2xl border border-[#E2E8F0] bg-white p-6 shadow-2xl space-y-4">
+            <div className="flex items-center justify-between border-b border-[#E2E8F0] pb-3">
+              <h3 className="text-base font-semibold text-[#0F172A]">Manual Document Ingestion</h3>
               <button
                 onClick={() => setShowUploadModal(false)}
-                className="text-slate-400 hover:text-slate-200 text-sm"
+                className="text-slate-400 hover:text-slate-600 p-1 rounded-lg hover:bg-slate-100 transition-colors"
               >
-                ✕
+                <X className="h-4 w-4" />
               </button>
             </div>
 
             {/* Mode Selector */}
-            <div className="flex rounded-xl bg-slate-950 p-1 border border-slate-800">
+            <div className="flex rounded-xl bg-slate-100 p-1 border border-[#E2E8F0]">
               <button
                 type="button"
                 onClick={() => setUploadMode("text")}
                 className={`flex-1 py-1.5 text-xs font-semibold rounded-lg transition-colors ${
-                  uploadMode === "text" ? "bg-indigo-600 text-white" : "text-slate-400 hover:text-white"
+                  uploadMode === "text" ? "bg-[#1D4ED8] text-white shadow-sm" : "text-slate-600 hover:text-[#0F172A]"
                 }`}
               >
                 Plain Text / JSON (UiPath Simulation)
@@ -359,7 +358,7 @@ export function DocumentDashboard() {
                 type="button"
                 onClick={() => setUploadMode("file")}
                 className={`flex-1 py-1.5 text-xs font-semibold rounded-lg transition-colors ${
-                  uploadMode === "file" ? "bg-indigo-600 text-white" : "text-slate-400 hover:text-white"
+                  uploadMode === "file" ? "bg-[#1D4ED8] text-white shadow-sm" : "text-slate-600 hover:text-[#0F172A]"
                 }`}
               >
                 Upload File (PDF/Word/TXT)
@@ -368,31 +367,31 @@ export function DocumentDashboard() {
 
             <form onSubmit={handleManualIngest} className="space-y-4">
               <div>
-                <label className="block text-xs font-medium text-slate-300 mb-1">Document Title</label>
+                <label className="block text-xs font-medium text-slate-700 mb-1">Document Title</label>
                 <input
                   type="text"
                   required
                   value={docTitle}
                   onChange={(e) => setDocTitle(e.target.value)}
                   placeholder="e.g. Employee_Handbook_2026.pdf"
-                  className="w-full rounded-xl border border-slate-800 bg-slate-950 px-3 py-2 text-xs text-white placeholder:text-slate-600 focus:border-indigo-500 focus:outline-none"
+                  className="w-full rounded-xl border border-[#E2E8F0] bg-white px-3 py-2 text-xs text-[#0F172A] placeholder:text-slate-400 focus:border-[#1D4ED8] focus:ring-1 focus:ring-blue-500 focus:outline-none"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-slate-300 mb-1">Source / Origin</label>
+                <label className="block text-xs font-medium text-slate-700 mb-1">Source / Origin</label>
                 <input
                   type="text"
                   value={docSource}
                   onChange={(e) => setDocSource(e.target.value)}
                   placeholder="e.g. UiPath Bot #1 - HR Portal"
-                  className="w-full rounded-xl border border-slate-800 bg-slate-950 px-3 py-2 text-xs text-white placeholder:text-slate-600 focus:border-indigo-500 focus:outline-none"
+                  className="w-full rounded-xl border border-[#E2E8F0] bg-white px-3 py-2 text-xs text-[#0F172A] placeholder:text-slate-400 focus:border-[#1D4ED8] focus:ring-1 focus:ring-blue-500 focus:outline-none"
                 />
               </div>
 
               {uploadMode === "text" ? (
                 <div>
-                  <label className="block text-xs font-medium text-slate-300 mb-1">
+                  <label className="block text-xs font-medium text-slate-700 mb-1">
                     Document Text Content
                   </label>
                   <textarea
@@ -401,18 +400,18 @@ export function DocumentDashboard() {
                     value={docContent}
                     onChange={(e) => setDocContent(e.target.value)}
                     placeholder="Paste the extracted document content here to simulate what the UiPath robot sends..."
-                    className="w-full rounded-xl border border-slate-800 bg-slate-950 px-3 py-2 text-xs text-white placeholder:text-slate-600 focus:border-indigo-500 focus:outline-none"
+                    className="w-full rounded-xl border border-[#E2E8F0] bg-white px-3 py-2 text-xs text-[#0F172A] placeholder:text-slate-400 focus:border-[#1D4ED8] focus:ring-1 focus:ring-blue-500 focus:outline-none"
                   />
                 </div>
               ) : (
                 <div>
-                  <label className="block text-xs font-medium text-slate-300 mb-1">Select File</label>
+                  <label className="block text-xs font-medium text-slate-700 mb-1">Select File</label>
                   <input
                     type="file"
                     required
                     accept=".pdf,.docx,.txt,.md,.json,.csv"
                     onChange={(e) => setSelectedFile(e.target.files?.[0] || null)}
-                    className="w-full text-xs text-slate-400 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-indigo-600 file:text-white hover:file:bg-indigo-500 cursor-pointer"
+                    className="w-full text-xs text-slate-600 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-[#1D4ED8] file:text-white hover:file:bg-blue-800 cursor-pointer"
                   />
                 </div>
               )}
@@ -421,8 +420,8 @@ export function DocumentDashboard() {
                 <div
                   className={`p-3 rounded-xl text-xs flex items-center gap-2 ${
                     uploadMessage.type === "success"
-                      ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
-                      : "bg-red-500/10 text-red-400 border border-red-500/20"
+                      ? "bg-emerald-50 text-emerald-800 border border-emerald-200"
+                      : "bg-red-50 text-red-800 border border-red-200"
                   }`}
                 >
                   {uploadMessage.type === "success" ? (
@@ -438,14 +437,14 @@ export function DocumentDashboard() {
                 <button
                   type="button"
                   onClick={() => setShowUploadModal(false)}
-                  className="rounded-xl border border-slate-800 px-4 py-2 text-xs font-medium text-slate-400 hover:bg-slate-800"
+                  className="rounded-xl border border-[#E2E8F0] px-4 py-2 text-xs font-medium text-slate-600 hover:bg-slate-50 transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isUploading}
-                  className="rounded-xl bg-indigo-600 px-4 py-2 text-xs font-semibold text-white hover:bg-indigo-500 disabled:opacity-50 flex items-center gap-1.5"
+                  className="rounded-xl bg-[#1D4ED8] px-4 py-2 text-xs font-semibold text-white hover:bg-blue-800 disabled:opacity-50 flex items-center gap-1.5 shadow-sm transition-colors"
                 >
                   {isUploading && <RefreshCw className="h-3 w-3 animate-spin" />}
                   {isUploading ? "Chunking & Indexing..." : "Index Now"}

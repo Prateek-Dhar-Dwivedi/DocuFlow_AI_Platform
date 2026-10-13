@@ -4,7 +4,7 @@ An enterprise **Retrieval-Augmented Generation (RAG)** platform built on **Next.
 
 ---
 
-## 🏛️ System Architecture
+## System Architecture
 
 ```mermaid
 flowchart TD
@@ -36,7 +36,7 @@ flowchart TD
 
 ---
 
-## 🚀 Quick Start (Local Development)
+## Quick Start (Local Development)
 
 ### 1. Prerequisites
 - Node.js 20+ installed
@@ -57,7 +57,7 @@ Open [http://localhost:3000](http://localhost:3000) in your browser:
 
 ---
 
-## 🔑 Required API Keys & Configuration
+## Required API Keys & Configuration
 
 Configure `.env.local` with your credentials:
 
@@ -98,7 +98,7 @@ Configure `.env.local` with your credentials:
 
 ---
 
-## 🤖 UiPath Studio Bot Integration Guide
+## UiPath Studio Bot Integration Guide
 
 UiPath Studio bots extract text from PDFs, emails, invoices, or file shares and push them to your backend via HTTP POST.
 
@@ -138,7 +138,7 @@ curl -X POST http://localhost:3000/api/ingest \
 
 ---
 
-## ☁️ Deployment on Render (`render.com`)
+## Deployment on Render (`render.com`)
 
 The repository includes a `render.yaml` blueprint:
 
