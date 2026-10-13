@@ -54,10 +54,11 @@ ${contextText || "No relevant documents found in the vector index."}
  * Streams chat responses from Google Gemini API via Server-Sent Events (SSE)
  */
 async function createGeminiChatStream(
-  messages: { role: "system" | "user" | "assistant"; content: string }[]
+  messages: { role: "system" | "user" | "assistant"; content: string }[],
+  overrideModel?: string
 ): Promise<ReadableStream<Uint8Array>> {
   const encoder = new TextEncoder();
-  const model = CONFIG.GEMINI_CHAT_MODEL || "gemini-3.1-flash-lite";
+  const model = overrideModel || CONFIG.GEMINI_CHAT_MODEL || "gemini-3.1-flash-lite";
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:streamGenerateContent?alt=sse&key=${CONFIG.GEMINI_API_KEY}`;
 
   const systemMessage = messages.find((m) => m.role === "system");
@@ -159,15 +160,25 @@ export async function createChatStream(
 ): Promise<ReadableStream<Uint8Array>> {
   const encoder = new TextEncoder();
 
-  // 1. Try Google Gemini first if configured (with automatic retry)
+  // 1. Try Google Gemini first if configured (with automatic retry and model failover)
   if (CONFIG.GEMINI_API_KEY) {
-    for (let attempt = 1; attempt <= 2; attempt++) {
-      try {
-        return await createGeminiChatStream(messages);
-      } catch (err) {
-        console.warn(`[LLM] Gemini stream attempt ${attempt} failed:`, err);
-        if (attempt < 2) {
-          await new Promise((res) => setTimeout(res, 600));
+    const candidateModels = [
+      CONFIG.GEMINI_CHAT_MODEL || "gemini-3.1-flash-lite",
+      "gemini-flash-lite-latest",
+    ];
+
+    for (const modelName of candidateModels) {
+      for (let attempt = 1; attempt <= 2; attempt++) {
+        try {
+          return await createGeminiChatStream(messages, modelName);
+        } catch (err: unknown) {
+          const errMsg = String(err);
+          console.warn(`[LLM] Gemini (${modelName}) attempt ${attempt} failed:`, errMsg);
+          if (attempt < 2) {
+            const isRateLimit = errMsg.includes("429") || errMsg.includes("RESOURCE_EXHAUSTED");
+            const delay = isRateLimit ? 1200 : 500;
+            await new Promise((res) => setTimeout(res, delay));
+          }
         }
       }
     }
