@@ -1,0 +1,22 @@
+services:
+  - type: web
+    name: docflow-rag-platform
+    env: node
+    plan: free
+    buildCommand: npm install && npm run build
+    startCommand: npm run start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: PINECONE_INDEX_NAME
+        value: rag-documents
+      - key: PINECONE_HOST
+        value: https://rag-documents-d4sm4vc.svc.aped-4627-b74a.pinecone.io
+      - key: PINECONE_API_KEY
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: UIPATH_API_KEY
+        sync: false
