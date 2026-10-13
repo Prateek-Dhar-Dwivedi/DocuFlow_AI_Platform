@@ -4,6 +4,7 @@ import {
   upsertChunksToPinecone,
   searchPinecone,
   deleteDocumentFromPinecone,
+  listDocumentsFromPinecone,
 } from "./pinecone";
 import {
   indexDocumentChunks as indexToAzureSearch,
@@ -71,6 +72,19 @@ export async function queryVectorStore(
 }
 
 export async function getAllDocuments(): Promise<DocumentRecord[]> {
+  const provider = getActiveVectorProvider();
+  if (provider === "pinecone") {
+    try {
+      const pineconeDocs = await listDocumentsFromPinecone();
+      if (pineconeDocs.length > 0) {
+        pineconeDocs.forEach((d) => docRegistry.set(d.id, d));
+        return pineconeDocs;
+      }
+    } catch (err) {
+      console.warn("[Vector Registry] Notice loading from Pinecone:", err);
+    }
+  }
+
   if (docRegistry.size > 0) {
     return Array.from(docRegistry.values());
   }

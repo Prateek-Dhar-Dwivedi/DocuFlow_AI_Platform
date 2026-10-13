@@ -1,6 +1,6 @@
 import { Pinecone, RecordMetadata } from "@pinecone-database/pinecone";
 import { CONFIG, hasPineconeConfigured } from "../config";
-import { DocumentChunk, SearchResultItem } from "../types";
+import { DocumentChunk, DocumentRecord, SearchResultItem } from "../types";
 
 let pineconeClient: Pinecone | null = null;
 
@@ -161,5 +161,59 @@ export async function deleteDocumentFromPinecone(
     });
   } catch (err) {
     console.warn(`[Pinecone] Deletion notice for document ${documentId}:`, err);
+  }
+}
+
+/**
+ * Lists all unique documents stored in Pinecone by inspecting vector metadata
+ */
+export async function listDocumentsFromPinecone(): Promise<DocumentRecord[]> {
+  const host = CONFIG.PINECONE_HOST;
+  const apiKey = CONFIG.PINECONE_API_KEY;
+  if (!host || !apiKey) return [];
+
+  try {
+    const listRes = await fetch(`${host}/vectors/list`, {
+      headers: { "Api-Key": apiKey },
+    });
+    if (!listRes.ok) return [];
+    const listData = await listRes.json();
+    const ids: string[] = (listData.vectors || []).map((v: { id: string }) => v.id);
+    if (ids.length === 0) return [];
+
+    const queryParams = ids.map((id) => `ids=${encodeURIComponent(id)}`).join("&");
+    const fetchRes = await fetch(`${host}/vectors/fetch?${queryParams}`, {
+      headers: { "Api-Key": apiKey },
+    });
+    if (!fetchRes.ok) return [];
+    const fetchData = await fetchRes.json();
+    const records = fetchData.vectors || {};
+
+    const docMap = new Map<string, DocumentRecord>();
+
+    for (const record of Object.values(records) as Array<{ id: string; metadata?: Record<string, unknown> }>) {
+      const meta = record.metadata;
+      if (!meta) continue;
+
+      const docId = String(meta.documentId || record.id);
+      if (!docMap.has(docId)) {
+        docMap.set(docId, {
+          id: docId,
+          title: String(meta.title || "Untitled"),
+          source: String(meta.source || "UiPath Bot Ingestion"),
+          chunkCount: Number(meta.totalChunks) || 1,
+          totalCharacters: 0,
+          createdAt: String(meta.createdAt || new Date().toISOString()),
+          metadata: meta,
+        });
+      }
+      const existing = docMap.get(docId)!;
+      existing.totalCharacters += String(meta.content || "").length;
+    }
+
+    return Array.from(docMap.values());
+  } catch (err) {
+    console.warn("[Pinecone] Could not list documents from Pinecone:", err);
+    return [];
   }
 }
