@@ -102,40 +102,44 @@ export function ChatInterface() {
         if (done) break;
 
         const chunk = decoder.decode(value, { stream: true });
-        const lines = chunk.split("\n\n");
+        const parts = chunk.split(/\r?\n\r?\n/);
 
-        for (const line of lines) {
-          if (!line.startsWith("data: ")) continue;
-          const jsonStr = line.replace("data: ", "").trim();
+        for (const part of parts) {
+          const lines = part.split(/\r?\n/);
+          for (const line of lines) {
+            const trimmed = line.trim();
+            if (!trimmed.startsWith("data: ")) continue;
+            const jsonStr = trimmed.slice(6).trim();
 
-          if (jsonStr === "[DONE]") {
-            break;
-          }
-
-          try {
-            const data = JSON.parse(jsonStr);
-
-            // 1. Process citations event
-            if (data.type === "citations" && Array.isArray(data.citations)) {
-              retrievedCitations = data.citations;
-              setMessages((prev) =>
-                prev.map((m) =>
-                  m.id === assistantMessageId ? { ...m, citations: retrievedCitations } : m
-                )
-              );
+            if (jsonStr === "[DONE]") {
+              break;
             }
 
-            // 2. Process text token event
-            if (data.text) {
-              accumulatedContent += data.text;
-              setMessages((prev) =>
-                prev.map((m) =>
-                  m.id === assistantMessageId ? { ...m, content: accumulatedContent } : m
-                )
-              );
+            try {
+              const data = JSON.parse(jsonStr);
+
+              // 1. Process citations event
+              if (data.type === "citations" && Array.isArray(data.citations)) {
+                retrievedCitations = data.citations;
+                setMessages((prev) =>
+                  prev.map((m) =>
+                    m.id === assistantMessageId ? { ...m, citations: retrievedCitations } : m
+                  )
+                );
+              }
+
+              // 2. Process text token event
+              if (data.text) {
+                accumulatedContent += data.text;
+                setMessages((prev) =>
+                  prev.map((m) =>
+                    m.id === assistantMessageId ? { ...m, content: accumulatedContent } : m
+                  )
+                );
+              }
+            } catch {
+              // Ignore non-JSON stream fragments
             }
-          } catch {
-            // Ignore non-JSON stream fragments
           }
         }
       }

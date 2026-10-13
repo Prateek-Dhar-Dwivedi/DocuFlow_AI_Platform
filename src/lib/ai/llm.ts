@@ -104,24 +104,47 @@ async function createGeminiChatStream(
           if (done) break;
 
           buffer += decoder.decode(value, { stream: true });
-          const lines = buffer.split("\n\n");
-          buffer = lines.pop() || "";
+          const parts = buffer.split(/\r?\n\r?\n/);
+          buffer = parts.pop() || "";
 
-          for (const line of lines) {
-            const trimmed = line.trim();
-            if (!trimmed.startsWith("data: ")) continue;
-            const jsonStr = trimmed.replace("data: ", "");
-            try {
-              const data = JSON.parse(jsonStr);
-              const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
-              if (text) {
-                controller.enqueue(encoder.encode(`data: ${JSON.stringify({ text })}\n\n`));
+          for (const part of parts) {
+            const lines = part.split(/\r?\n/);
+            for (const line of lines) {
+              const trimmed = line.trim();
+              if (!trimmed.startsWith("data: ")) continue;
+              const jsonStr = trimmed.slice(6).trim();
+              if (jsonStr === "[DONE]") continue;
+              try {
+                const data = JSON.parse(jsonStr);
+                const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+                if (text) {
+                  controller.enqueue(encoder.encode(`data: ${JSON.stringify({ text })}\n\n`));
+                }
+              } catch {
+                // Ignore partial JSON
               }
-            } catch {
-              // Ignore partial JSON
             }
           }
         }
+
+        if (buffer.trim()) {
+          const lines = buffer.split(/\r?\n/);
+          for (const line of lines) {
+            const trimmed = line.trim();
+            if (trimmed.startsWith("data: ")) {
+              try {
+                const data = JSON.parse(trimmed.slice(6).trim());
+                const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+                if (text) {
+                  controller.enqueue(encoder.encode(`data: ${JSON.stringify({ text })}\n\n`));
+                }
+              } catch {
+                // Ignore partial JSON
+              }
+            }
+          }
+        }
+
         controller.enqueue(encoder.encode("data: [DONE]\n\n"));
         controller.close();
       } catch (err) {
