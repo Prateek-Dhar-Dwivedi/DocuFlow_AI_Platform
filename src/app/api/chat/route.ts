@@ -32,8 +32,8 @@ export async function POST(request: NextRequest) {
     // 1. Convert user query to vector embedding
     const queryVector = await generateSingleEmbedding(userQuery);
 
-    // 2. Query Pinecone / Vector DB for top-K matching chunks
-    const retrievedChunks = await queryVectorStore(queryVector, userQuery, 5);
+    // 2. Query Pinecone / Vector DB for top-K matching chunks (optimized topK=3 for minimum latency & TTFT)
+    const retrievedChunks = await queryVectorStore(queryVector, userQuery, 3);
 
     // 3. Construct system prompt with grounding and retrieved context
     const systemPrompt = buildSystemPrompt(retrievedChunks);

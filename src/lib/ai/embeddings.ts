@@ -28,10 +28,19 @@ function getOpenAIClient(): OpenAI | AzureOpenAI | null {
   return null;
 }
 
+// In-memory LRU embedding cache for 0ms repeated query retrieval
+const embeddingCache = new Map<string, number[]>();
+const MAX_EMBEDDING_CACHE_SIZE = 500;
+
 /**
- * Generate 1536-dimensional embeddings using Google Gemini API
+ * Generate 1536-dimensional embeddings using Google Gemini API (with memory cache)
  */
 async function generateGeminiEmbedding(text: string): Promise<number[]> {
+  const cacheKey = text.trim().toLowerCase();
+  if (embeddingCache.has(cacheKey)) {
+    return embeddingCache.get(cacheKey)!;
+  }
+
   const model = CONFIG.GEMINI_EMBEDDING_MODEL || "gemini-embedding-001";
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:embedContent?key=${CONFIG.GEMINI_API_KEY}`;
 
@@ -54,6 +63,14 @@ async function generateGeminiEmbedding(text: string): Promise<number[]> {
   if (!vector || !Array.isArray(vector)) {
     throw new Error("Invalid embedding response from Gemini");
   }
+
+  // Evict oldest if cache limit reached
+  if (embeddingCache.size >= MAX_EMBEDDING_CACHE_SIZE) {
+    const firstKey = embeddingCache.keys().next().value;
+    if (firstKey) embeddingCache.delete(firstKey);
+  }
+  embeddingCache.set(cacheKey, vector);
+
   return vector;
 }
 
