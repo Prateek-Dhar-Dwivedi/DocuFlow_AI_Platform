@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getAllDocuments, getActiveVectorProvider } from "@/lib/vector";
+import { getAllDocuments, getActiveVectorProvider } from "@/lib/vector/index";
 import {
   hasPineconeConfigured,
   hasAzureSearchConfigured,

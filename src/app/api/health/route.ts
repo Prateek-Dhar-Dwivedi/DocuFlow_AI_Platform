@@ -5,7 +5,7 @@ import {
   hasOpenAIConfigured,
   CONFIG,
 } from "@/lib/config";
-import { getActiveVectorProvider } from "@/lib/vector";
+import { getActiveVectorProvider } from "@/lib/vector/index";
 
 export async function GET() {
   return NextResponse.json({
