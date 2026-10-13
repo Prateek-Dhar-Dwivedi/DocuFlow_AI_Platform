@@ -2,10 +2,12 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { MessageSquare, Files, Bot, Sparkles, Activity } from "lucide-react";
+import { MessageSquare, Files, Bot, Sparkles, RefreshCw } from "lucide-react";
+import { useLoading } from "../context/LoadingContext";
 
 export function Navbar() {
   const pathname = usePathname();
+  const { isLoading, loadingMessage } = useLoading();
 
   const navLinks = [
     { href: "/chat", label: "Conversational Q&A", icon: MessageSquare },
@@ -52,12 +54,20 @@ export function Navbar() {
           })}
         </nav>
 
-        {/* Status badges - No dots */}
-        <div className="hidden lg:flex items-center gap-3">
-          <div className="flex items-center gap-1.5 rounded-full border border-blue-200 bg-blue-50 px-3 py-1 text-xs font-medium text-[#1D4ED8]">
-            <Bot className="h-3.5 w-3.5 text-[#1D4ED8]" />
-            <span>UiPath Bot Endpoint Ready</span>
-          </div>
+        {/* Status / Loader badge in the upper bar */}
+        <div className="flex items-center gap-3">
+          {isLoading ? (
+            <div className="flex items-center gap-2 rounded-full border border-blue-300 bg-blue-100/90 px-3.5 py-1 text-xs font-semibold text-[#1D4ED8] shadow-sm animate-pulse">
+              <RefreshCw className="h-3.5 w-3.5 animate-spin text-[#1D4ED8]" />
+              <span className="hidden sm:inline">{loadingMessage || "Loading Resources..."}</span>
+              <span className="sm:hidden">Loading...</span>
+            </div>
+          ) : (
+            <div className="hidden lg:flex items-center gap-1.5 rounded-full border border-blue-200 bg-blue-50 px-3 py-1 text-xs font-medium text-[#1D4ED8]">
+              <Bot className="h-3.5 w-3.5 text-[#1D4ED8]" />
+              <span>UiPath Bot Endpoint Ready</span>
+            </div>
+          )}
         </div>
       </div>
     </header>

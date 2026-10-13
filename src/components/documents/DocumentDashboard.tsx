@@ -18,8 +18,10 @@ import {
   X,
 } from "lucide-react";
 import { DocumentRecord } from "../../lib/types";
+import { useLoading } from "../../context/LoadingContext";
 
 export function DocumentDashboard() {
+  const { setIsLoading: setGlobalLoading, setLoadingMessage } = useLoading();
   const [documents, setDocuments] = useState<DocumentRecord[]>([]);
   const [status, setStatus] = useState<{
     vectorProvider?: string;
@@ -55,6 +57,8 @@ export function DocumentDashboard() {
   const fetchDocuments = async () => {
     try {
       setIsLoading(true);
+      setGlobalLoading(true);
+      setLoadingMessage("Fetching Document Resources...");
       const res = await fetch("/api/documents");
       if (res.ok) {
         const data = await res.json();
@@ -65,6 +69,7 @@ export function DocumentDashboard() {
       console.error("Failed to load documents:", err);
     } finally {
       setIsLoading(false);
+      setGlobalLoading(false);
     }
   };
 
@@ -176,7 +181,15 @@ export function DocumentDashboard() {
       {/* Header and Title */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-[#0F172A]">Document Registry & Vector Store</h1>
+          <div className="flex flex-wrap items-center gap-3">
+            <h1 className="text-2xl font-bold tracking-tight text-[#0F172A]">Document Registry & Vector Store</h1>
+            {isLoading && (
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-blue-200 bg-blue-50 px-3 py-1 text-xs font-semibold text-[#1D4ED8] shadow-sm animate-pulse">
+                <RefreshCw className="h-3.5 w-3.5 animate-spin text-[#1D4ED8]" />
+                Loading Resources...
+              </span>
+            )}
+          </div>
           <p className="mt-1 text-sm text-slate-600">
             Monitor documents ingested by UiPath Studio robots and manage vector embeddings in Pinecone Serverless.
           </p>
@@ -185,10 +198,10 @@ export function DocumentDashboard() {
           <button
             onClick={fetchDocuments}
             disabled={isLoading}
-            className="flex items-center gap-2 rounded-xl border border-[#E2E8F0] bg-white px-3.5 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition-colors shadow-sm"
+            className="flex items-center gap-2 rounded-xl border border-[#E2E8F0] bg-white px-3.5 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition-colors shadow-sm disabled:opacity-60"
           >
-            <RefreshCw className={`h-3.5 w-3.5 ${isLoading ? "animate-spin" : ""}`} />
-            Refresh
+            <RefreshCw className={`h-3.5 w-3.5 text-[#1D4ED8] ${isLoading ? "animate-spin" : ""}`} />
+            <span>{isLoading ? "Refreshing..." : "Refresh"}</span>
           </button>
           <button
             onClick={() => setShowUploadModal(true)}

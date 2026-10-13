@@ -16,6 +16,7 @@ import {
   Database,
 } from "lucide-react";
 import { ChatMessage, SearchResultItem } from "../../lib/types";
+import { useLoading } from "../../context/LoadingContext";
 
 const SUGGESTED_PROMPTS = [
   "Summarize the main documents extracted by the UiPath bot",
@@ -24,6 +25,7 @@ const SUGGESTED_PROMPTS = [
 ];
 
 export function ChatInterface() {
+  const { setIsLoading: setGlobalLoading, setLoadingMessage } = useLoading();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -71,6 +73,8 @@ export function ChatInterface() {
 
     setMessages((prev) => [...prev, userMessage, initialAssistantMessage]);
     setIsLoading(true);
+    setGlobalLoading(true);
+    setLoadingMessage("Querying Pinecone Vector Index...");
 
     try {
       const response = await fetch("/api/chat", {
@@ -158,6 +162,7 @@ export function ChatInterface() {
       );
     } finally {
       setIsLoading(false);
+      setGlobalLoading(false);
       setTimeout(() => inputRef.current?.focus(), 50);
     }
   };
@@ -178,10 +183,19 @@ export function ChatInterface() {
       {/* Top action bar */}
       <div className="flex items-center justify-between pb-3 border-b border-[#E2E8F0]">
         <div className="flex items-center gap-2">
-          <Database className="h-3.5 w-3.5 text-[#1D4ED8]" />
-          <span className="text-xs font-medium text-slate-500">
-            Vector Store: <strong className="text-[#0F172A] font-semibold">Pinecone Serverless (rag-documents)</strong>
-          </span>
+          {isLoading ? (
+            <div className="flex items-center gap-1.5 rounded-full border border-blue-200 bg-blue-50 px-2.5 py-0.5 text-xs font-semibold text-[#1D4ED8] shadow-sm animate-pulse">
+              <RefreshCw className="h-3.5 w-3.5 animate-spin text-[#1D4ED8]" />
+              <span>Querying Pinecone Vector Index & Citations...</span>
+            </div>
+          ) : (
+            <div className="flex items-center gap-2">
+              <Database className="h-3.5 w-3.5 text-[#1D4ED8]" />
+              <span className="text-xs font-medium text-slate-500">
+                Vector Store: <strong className="text-[#0F172A] font-semibold">Pinecone Serverless (rag-documents)</strong>
+              </span>
+            </div>
+          )}
         </div>
         {messages.length > 0 && (
           <button

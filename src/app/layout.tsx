@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { Navbar } from "../components/Navbar";
+import { LoadingProvider } from "../context/LoadingContext";
 
 export const metadata: Metadata = {
   title: "DocuFlow AI | Enterprise RAG & UiPath Ingestion",
@@ -22,8 +23,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="min-h-screen bg-[#F8FAFC] text-[#0F172A] antialiased flex flex-col selection:bg-[#1D4ED8] selection:text-white">
-        <Navbar />
-        <main className="flex-1 flex flex-col">{children}</main>
+        <LoadingProvider>
+          <Navbar />
+          <main className="flex-1 flex flex-col">{children}</main>
+        </LoadingProvider>
       </body>
     </html>
   );
