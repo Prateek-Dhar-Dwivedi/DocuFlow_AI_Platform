@@ -157,18 +157,24 @@ async function createGeminiChatStream(
 export async function createChatStream(
   messages: { role: "system" | "user" | "assistant"; content: string }[]
 ): Promise<ReadableStream<Uint8Array>> {
-  // 1. Try Google Gemini first if configured
+  const encoder = new TextEncoder();
+
+  // 1. Try Google Gemini first if configured (with automatic retry)
   if (CONFIG.GEMINI_API_KEY) {
-    try {
-      return await createGeminiChatStream(messages);
-    } catch (err) {
-      console.warn("[LLM] Gemini stream error, checking fallback:", err);
+    for (let attempt = 1; attempt <= 2; attempt++) {
+      try {
+        return await createGeminiChatStream(messages);
+      } catch (err) {
+        console.warn(`[LLM] Gemini stream attempt ${attempt} failed:`, err);
+        if (attempt < 2) {
+          await new Promise((res) => setTimeout(res, 600));
+        }
+      }
     }
   }
 
   // 2. Try OpenAI / Azure OpenAI if configured
   const openAiClient = getOpenAIClient();
-  const encoder = new TextEncoder();
 
   if (openAiClient) {
     try {
@@ -201,18 +207,28 @@ export async function createChatStream(
     }
   }
 
-  // 3. Fallback mock stream for offline testing
+  // 3. Fallback: Synthesize grounded response directly from retrieved context if available
   return new ReadableStream({
     async start(controller) {
-      const mockResponse =
-        "*(Mock Demo Mode)*\n\n" +
-        "I have received your query and retrieved relevant document chunks! " +
-        "Configure your `GEMINI_API_KEY` or `OPENAI_API_KEY` in `.env.local` to enable live streaming generation.";
+      const systemMsg = messages.find((m) => m.role === "system")?.content || "";
+      const contextMatch = systemMsg.match(/=== RETRIEVED CONTEXT ===\s*([\s\S]*?)\s*=========================/);
+      const retrievedContext = contextMatch ? contextMatch[1].trim() : "";
 
-      const words = mockResponse.split(" ");
+      let fallbackText = "";
+      if (retrievedContext && !retrievedContext.includes("No relevant documents found in the vector index.")) {
+        fallbackText =
+          "### Retrieved Document Context\n\n" +
+          "Here are the relevant sections retrieved from your ingested documents:\n\n" +
+          retrievedContext;
+      } else {
+        fallbackText =
+          "I was unable to retrieve a response from the language model service at this moment. Please check your network connection or try your request again in a few moments.";
+      }
+
+      const words = fallbackText.split(" ");
       for (const word of words) {
         controller.enqueue(encoder.encode(`data: ${JSON.stringify({ text: word + " " })}\n\n`));
-        await new Promise((res) => setTimeout(res, 25));
+        await new Promise((res) => setTimeout(res, 20));
       }
       controller.enqueue(encoder.encode("data: [DONE]\n\n"));
       controller.close();
