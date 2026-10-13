@@ -22,6 +22,11 @@ export async function GET() {
         configured: hasAzureSearchConfigured(),
         indexName: CONFIG.AZURE_SEARCH_INDEX_NAME,
       },
+      gemini: {
+        configured: Boolean(CONFIG.GEMINI_API_KEY),
+        chatModel: CONFIG.GEMINI_CHAT_MODEL,
+        embeddingModel: CONFIG.GEMINI_EMBEDDING_MODEL,
+      },
       openAI: {
         configured: hasOpenAIConfigured(),
         isAzureOpenAI: Boolean(CONFIG.AZURE_OPENAI_ENDPOINT),
