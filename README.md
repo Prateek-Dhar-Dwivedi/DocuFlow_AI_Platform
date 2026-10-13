@@ -104,7 +104,7 @@ UiPath Studio bots extract text from PDFs, emails, invoices, or file shares and 
 
 ### Low-Latency JSON Ingestion (Recommended)
 Configure UiPath's **HTTP Request** activity:
-- **Endpoint**: `https://<your-render-app>.onrender.com/api/ingest`
+- **Endpoint**: `https://docflow-ai-platform.onrender.com/api/ingest`
 - **Method**: `POST`
 - **Headers**:
   - `Content-Type`: `application/json`
@@ -125,7 +125,7 @@ Configure UiPath's **HTTP Request** activity:
 
 ### cURL Test Command
 ```bash
-curl -X POST http://localhost:3000/api/ingest \
+curl -X POST https://docflow-ai-platform.onrender.com/api/ingest \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer dev-uipath-mkp-is-the-best-981060" \
   -d '{

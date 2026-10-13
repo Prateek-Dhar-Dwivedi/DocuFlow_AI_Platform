@@ -42,6 +42,7 @@ export function DocumentDashboard() {
   const [isUploading, setIsUploading] = useState(false);
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [copiedCurl, setCopiedCurl] = useState(false);
+  const [baseUrl, setBaseUrl] = useState("https://docflow-ai-platform.onrender.com");
 
   // Upload Form State
   const [uploadMode, setUploadMode] = useState<"text" | "file">("text");
@@ -69,6 +70,9 @@ export function DocumentDashboard() {
 
   useEffect(() => {
     fetchDocuments();
+    if (typeof window !== "undefined" && window.location.origin) {
+      setBaseUrl(window.location.origin);
+    }
   }, []);
 
   const handleDelete = async (id: string) => {
@@ -151,7 +155,7 @@ export function DocumentDashboard() {
     }
   };
 
-  const curlCommand = `curl -X POST http://localhost:3000/api/ingest \\
+  const curlCommand = `curl -X POST ${baseUrl}/api/ingest \\
   -H "Content-Type: application/json" \\
   -H "Authorization: Bearer dev-uipath-mkp-is-the-best-981060" \\
   -d '{
@@ -252,7 +256,11 @@ export function DocumentDashboard() {
               <h3 className="text-sm font-semibold text-[#0F172A]">UiPath Studio Bot Webhook Setup</h3>
             </div>
             <p className="text-xs text-slate-600 max-w-2xl">
-              Configure your UiPath Studio <strong>HTTP Request</strong> activity to dispatch extracted text directly to this endpoint. Low latency JSON payload is ready.
+              Configure your UiPath Studio <strong>HTTP Request</strong> activity to dispatch extracted text directly to{" "}
+              <code className="rounded bg-blue-100/70 px-1.5 py-0.5 font-mono text-[11px] text-[#1D4ED8] border border-blue-200">
+                {baseUrl}/api/ingest
+              </code>
+              . Low latency JSON payload is ready.
             </p>
           </div>
           <button
