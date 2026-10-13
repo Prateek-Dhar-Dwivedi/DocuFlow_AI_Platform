@@ -50,7 +50,7 @@ export function DocumentDashboard() {
   const [uploadMode, setUploadMode] = useState<"text" | "file">("text");
   const [docTitle, setDocTitle] = useState("");
   const [docContent, setDocContent] = useState("");
-  const [docSource, setDocSource] = useState("UiPath Bot Simulation");
+  const [docSource, setDocSource] = useState("UiPath Robot / Direct Ingestion");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [uploadMessage, setUploadMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
@@ -405,7 +405,7 @@ export function DocumentDashboard() {
                   uploadMode === "text" ? "bg-[#1D4ED8] text-white shadow-sm" : "text-slate-600 hover:text-[#0F172A]"
                 }`}
               >
-                Plain Text / JSON (UiPath Simulation)
+                Direct Text / JSON Payload
               </button>
               <button
                 type="button"
@@ -452,7 +452,7 @@ export function DocumentDashboard() {
                     rows={6}
                     value={docContent}
                     onChange={(e) => setDocContent(e.target.value)}
-                    placeholder="Paste the extracted document content here to simulate what the UiPath robot sends..."
+                    placeholder="Paste the extracted document content, contract text, or JSON payload here..."
                     className="w-full rounded-xl border border-[#E2E8F0] bg-white px-3 py-2 text-xs text-[#0F172A] placeholder:text-slate-400 focus:border-[#1D4ED8] focus:ring-1 focus:ring-blue-500 focus:outline-none"
                   />
                 </div>
