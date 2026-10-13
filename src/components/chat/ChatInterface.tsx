@@ -255,14 +255,28 @@ export function ChatInterface() {
                     {message.content ? (
                       <div className="whitespace-pre-wrap font-sans">{message.content}</div>
                     ) : (
-                      <div className="flex items-center gap-2 text-slate-500 text-xs py-1">
-                        <RefreshCw className="h-3.5 w-3.5 animate-spin text-[#1D4ED8]" />
-                        <span>Searching vector index & synthesizing response...</span>
+                      <div className="space-y-3 py-1 min-w-[220px] sm:min-w-[280px]">
+                        <div className="flex items-center gap-2 text-xs font-medium text-[#1D4ED8]">
+                          <RefreshCw className="h-3.5 w-3.5 animate-spin text-[#1D4ED8]" />
+                          <span>Retrieving resources & generating answer...</span>
+                        </div>
+                        <div className="space-y-2">
+                          <div className="h-3 w-full bg-slate-100 rounded-md animate-pulse" />
+                          <div className="h-3 w-4/5 bg-slate-100 rounded-md animate-pulse" />
+                          <div className="h-3 w-3/5 bg-slate-100 rounded-md animate-pulse" />
+                        </div>
                       </div>
                     )}
                   </div>
 
                   {/* Citations and Grounding Panel */}
+                  {!isUser && !message.content && (
+                    <div className="flex items-center gap-2 rounded-xl border border-blue-100 bg-blue-50/50 px-3 py-2 text-xs text-slate-600">
+                      <Database className="h-3.5 w-3.5 text-[#1D4ED8] animate-pulse" />
+                      <span>Querying Pinecone vector database for matching chunks...</span>
+                    </div>
+                  )}
+
                   {!isUser && hasCitations && (
                     <div className="rounded-xl border border-[#E2E8F0] bg-slate-50/70 p-3 text-xs">
                       <button

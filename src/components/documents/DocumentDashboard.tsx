@@ -207,7 +207,11 @@ export function DocumentDashboard() {
             <span className="text-xs font-medium text-slate-500">Indexed Documents</span>
             <Files className="h-4 w-4 text-[#1D4ED8]" />
           </div>
-          <p className="mt-2 text-2xl font-bold text-[#0F172A]">{documents.length}</p>
+          {isLoading ? (
+            <div className="mt-3 h-8 w-16 bg-slate-100 rounded-lg animate-pulse" />
+          ) : (
+            <p className="mt-2 text-2xl font-bold text-[#0F172A]">{documents.length}</p>
+          )}
           <p className="mt-1 text-[11px] text-slate-500">Active records in database</p>
         </div>
 
@@ -216,9 +220,13 @@ export function DocumentDashboard() {
             <span className="text-xs font-medium text-slate-500">Total Vector Chunks</span>
             <Database className="h-4 w-4 text-[#1D4ED8]" />
           </div>
-          <p className="mt-2 text-2xl font-bold text-[#0F172A]">
-            {documents.reduce((acc, d) => acc + d.chunkCount, 0)}
-          </p>
+          {isLoading ? (
+            <div className="mt-3 h-8 w-20 bg-slate-100 rounded-lg animate-pulse" />
+          ) : (
+            <p className="mt-2 text-2xl font-bold text-[#0F172A]">
+              {documents.reduce((acc, d) => acc + d.chunkCount, 0)}
+            </p>
+          )}
           <p className="mt-1 text-[11px] text-slate-500">1536-dimensional embeddings</p>
         </div>
 
@@ -229,9 +237,13 @@ export function DocumentDashboard() {
               {status.pineconeConnected ? "Connected" : "Disconnected"}
             </span>
           </div>
-          <p className="mt-2 text-sm font-semibold text-[#0F172A]">
-            {status.pineconeConnected ? `Connected (${status.pineconeIndex || "rag-documents"})` : "Local Dev Mode"}
-          </p>
+          {isLoading ? (
+            <div className="mt-3 h-5 w-36 bg-slate-100 rounded animate-pulse" />
+          ) : (
+            <p className="mt-2 text-sm font-semibold text-[#0F172A]">
+              {status.pineconeConnected ? `Connected (${status.pineconeIndex || "rag-documents"})` : "Local Dev Mode"}
+            </p>
+          )}
           <p className="mt-1 text-[11px] text-slate-500">
             {status.pineconeConnected ? "Serverless Index Live" : "Configure PINECONE_API_KEY"}
           </p>
@@ -276,11 +288,31 @@ export function DocumentDashboard() {
       {/* Documents Table */}
       <div className="rounded-2xl border border-[#E2E8F0] bg-white overflow-hidden shadow-sm">
         <div className="px-6 py-4 border-b border-[#E2E8F0] flex items-center justify-between">
-          <h2 className="text-sm font-semibold text-[#0F172A]">Indexed Documents ({documents.length})</h2>
+          <div className="flex items-center gap-2">
+            {isLoading && <RefreshCw className="h-3.5 w-3.5 animate-spin text-[#1D4ED8]" />}
+            <h2 className="text-sm font-semibold text-[#0F172A]">
+              Indexed Documents {isLoading ? "(Loading...)" : `(${documents.length})`}
+            </h2>
+          </div>
           <span className="text-xs text-slate-500">Live Vector Index</span>
         </div>
 
-        {documents.length === 0 ? (
+        {isLoading ? (
+          <div className="py-16 text-center space-y-4">
+            <div className="inline-flex items-center justify-center h-12 w-12 rounded-2xl bg-blue-50 border border-blue-200 shadow-sm">
+              <RefreshCw className="h-6 w-6 text-[#1D4ED8] animate-spin" />
+            </div>
+            <div className="space-y-1">
+              <p className="text-sm font-semibold text-[#0F172A]">Loading Document Resources...</p>
+              <p className="text-xs text-slate-500">Retrieving vector index records from Pinecone Serverless</p>
+            </div>
+            <div className="max-w-3xl mx-auto space-y-2.5 pt-4 px-6">
+              <div className="h-10 bg-slate-100 rounded-xl animate-pulse" />
+              <div className="h-10 bg-slate-50 rounded-xl animate-pulse" />
+              <div className="h-10 bg-slate-100/70 rounded-xl animate-pulse" />
+            </div>
+          </div>
+        ) : documents.length === 0 ? (
           <div className="py-16 text-center space-y-3">
             <FileText className="h-10 w-10 text-slate-300 mx-auto" />
             <p className="text-sm text-slate-600">No documents ingested yet.</p>
